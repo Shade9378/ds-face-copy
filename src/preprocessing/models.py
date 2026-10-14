@@ -49,4 +49,4 @@ class AnalysisReport(BaseModel):
     pose: HeadPose | None
     quality: QualityReport
     upscale_factor: float = 1
-    reconstruction_status: str = "unsupported: MICA integration and licensed assets unavailable"
+    reconstruction_status: str = "not requested"

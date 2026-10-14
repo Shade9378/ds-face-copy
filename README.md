@@ -33,3 +33,9 @@ For a model stored elsewhere:
 ```bash
 FACE_LANDMARKER_MODEL=/path/to/face_landmarker.task uv run face-to-slider
 ```
+
+## MICA reconstruction
+
+Set up MICA in a separate CUDA environment using [these instructions](docs/mica_setup.md),
+then set MICA_REPO and MICA_PYTHON before starting the app.
+Use **Reconstruct with MICA** to generate a mesh preview and download the geometry.
