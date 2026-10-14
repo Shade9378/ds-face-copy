@@ -1,5 +1,3 @@
-"""MediaPipe Tasks backend with explicit local model provisioning."""
-
 from pathlib import Path
 from typing import Protocol
 
@@ -9,16 +7,10 @@ from preprocessing.models import FaceBounds
 
 
 class FaceDetector(Protocol):
-    """Injectable detector returning source-pixel landmarks, one array per face."""
-
-    def detect_faces(self, image: np.ndarray) -> list[np.ndarray]:
-        """Return arrays of shape (landmark count, 3)."""
-        ...
+    def detect_faces(self, image: np.ndarray) -> list[np.ndarray]: ...
 
 
 class MediaPipeFaceDetector:
-    """Run Face Landmarker locally; never implicitly download model assets."""
-
     def __init__(self, model_path: Path, max_faces: int = 10) -> None:
         if not model_path.is_file():
             raise ValueError(
@@ -41,7 +33,6 @@ class MediaPipeFaceDetector:
             ) from error
 
     def detect_faces(self, image: np.ndarray) -> list[np.ndarray]:
-        """Convert normalized landmarks to source pixels; z is relative, not metric depth."""
         mp = self._mediapipe
         result = self._landmarker.detect(mp.Image(image_format=mp.ImageFormat.SRGB, data=image))
         height, width = image.shape[:2]
@@ -51,14 +42,12 @@ class MediaPipeFaceDetector:
         ]
 
     def close(self) -> None:
-        """Release native resources."""
         self._landmarker.close()
 
 
 def select_largest_face(
     faces: list[np.ndarray], image_shape: tuple[int, ...]
 ) -> tuple[np.ndarray, FaceBounds]:
-    """Choose the largest valid visible landmark bounding box by pixel area."""
     height, width = image_shape[:2]
     candidates = []
     for points in faces:

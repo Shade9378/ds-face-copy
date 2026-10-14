@@ -1,5 +1,3 @@
-"""Phase 1 orchestration; measurements always use native-resolution pixels."""
-
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -15,8 +13,6 @@ from preprocessing.pose_estimation import estimate_head_pose
 
 @dataclass
 class PreparedFace:
-    """Independent source/crop arrays with portable metadata."""
-
     original: np.ndarray
     crop: np.ndarray
     preview: np.ndarray
@@ -26,7 +22,6 @@ class PreparedFace:
 def assess_image_quality(
     crop: np.ndarray, bounds: FaceBounds, pose: HeadPose | None, config: AnalysisConfig
 ) -> QualityReport:
-    """Flag resolution, texture, exposure and rotation using heuristic thresholds."""
     gray = cv2.cvtColor(crop, cv2.COLOR_RGB2GRAY)
     blur = float(cv2.Laplacian(gray, cv2.CV_64F).var())
     brightness = float(gray.mean())
@@ -63,7 +58,6 @@ def prepare_face(
     config: AnalysisConfig | None = None,
     upscale: bool = False,
 ) -> PreparedFace:
-    """Load, detect, crop, estimate pose, and assess the largest detected face."""
     config = config or AnalysisConfig()
     original = load_image(source, config.max_pixels)
     faces = detector.detect_faces(original)

@@ -1,5 +1,3 @@
-"""Command-line local photo analysis; reports are not game slider presets."""
-
 import argparse
 from pathlib import Path
 
@@ -8,8 +6,9 @@ from preprocessing.pipeline import prepare_face
 
 
 def main() -> None:
-    """Analyze one photograph with explicitly supplied model and output paths."""
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(
+        description="Command-line local photo analysis; reports are not game slider presets."
+    )
     parser.add_argument("photograph", type=Path)
     parser.add_argument("--model", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)

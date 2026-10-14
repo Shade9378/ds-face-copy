@@ -1,11 +1,7 @@
-"""Validated configuration and portable analysis metadata."""
-
 from pydantic import BaseModel, ConfigDict, Field
 
 
 class AnalysisConfig(BaseModel):
-    """Limits and heuristic thresholds, not learned confidence scores."""
-
     model_config = ConfigDict(extra="forbid")
     max_pixels: int = Field(default=24_000_000, gt=0)
     max_faces: int = Field(default=10, ge=1, le=50)
@@ -20,8 +16,6 @@ class AnalysisConfig(BaseModel):
 
 
 class FaceBounds(BaseModel):
-    """Source-pixel bounds; right and bottom are exclusive."""
-
     left: int
     top: int
     right: int
@@ -29,8 +23,6 @@ class FaceBounds(BaseModel):
 
 
 class HeadPose(BaseModel):
-    """Approximate Euler angles using a generic face and estimated intrinsics."""
-
     pitch_degrees: float
     yaw_degrees: float
     roll_degrees: float
@@ -38,8 +30,6 @@ class HeadPose(BaseModel):
 
 
 class QualityReport(BaseModel):
-    """Observable image metrics, not reconstruction accuracy."""
-
     face_width_pixels: int
     face_height_pixels: int
     laplacian_variance: float
@@ -48,8 +38,6 @@ class QualityReport(BaseModel):
 
 
 class AnalysisReport(BaseModel):
-    """JSON-compatible analysis; contains landmarks but no source photograph."""
-
     schema_version: str = "1.0"
     image_width: int
     image_height: int

@@ -1,5 +1,3 @@
-"""Deterministic contract tests; these do not establish real-photo accuracy."""
-
 import cv2
 import numpy as np
 import pytest

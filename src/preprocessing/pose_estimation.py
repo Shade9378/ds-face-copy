@@ -1,13 +1,11 @@
-"""Experimental generic-face perspective pose estimation."""
-
 import cv2
 import numpy as np
 
 from preprocessing.models import HeadPose
 
 POSE_LANDMARK_INDICES = [1, 152, 33, 263, 61, 291]
-# Nose, chin, outer eyes and mouth corners: x right, y down, z away.
-# Generic proportions in arbitrary units, not the subject's reconstructed geometry.
+
+
 GENERIC_FACE_POINTS = np.array(
     [
         [0, 0, 0],
@@ -22,7 +20,6 @@ GENERIC_FACE_POINTS = np.array(
 
 
 def estimate_head_pose(points: np.ndarray, image_shape: tuple[int, ...]) -> HeadPose | None:
-    """Fit six landmarks with estimated intrinsics; return None for failed fits."""
     height, width = image_shape[:2]
     camera = np.array([[width, 0, width / 2], [0, width, height / 2], [0, 0, 1]], dtype=np.float64)
     image_points = np.ascontiguousarray(points[POSE_LANDMARK_INDICES, :2], dtype=np.float64)

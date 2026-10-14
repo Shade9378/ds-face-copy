@@ -1,5 +1,3 @@
-"""Opt-in model inference tests using explicitly provided local assets."""
-
 import os
 from pathlib import Path
 

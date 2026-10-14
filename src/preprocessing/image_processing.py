@@ -1,5 +1,3 @@
-"""Safe image decoding and non-generative resizing."""
-
 import warnings
 from pathlib import Path
 
@@ -10,7 +8,6 @@ from preprocessing.models import FaceBounds
 
 
 def load_image(source: str | Path | Image.Image, max_pixels: int) -> np.ndarray:
-    """Honor EXIF orientation, composite transparency on white, and preserve RGB pixels."""
     try:
         with warnings.catch_warnings():
             warnings.simplefilter("error", Image.DecompressionBombWarning)
@@ -38,7 +35,6 @@ def _decode_image(image: Image.Image, max_pixels: int) -> np.ndarray:
 def crop_face(
     image: np.ndarray, bounds: FaceBounds, padding: float
 ) -> tuple[np.ndarray, FaceBounds]:
-    """Pad and clamp a source bounding box; return an independent crop."""
     height, width = image.shape[:2]
     pad_x = round((bounds.right - bounds.left) * padding)
     pad_y = round((bounds.bottom - bounds.top) * padding)
@@ -56,7 +52,6 @@ def crop_face(
 
 
 def upscale_crop(crop: np.ndarray, target: int, max_factor: float) -> tuple[np.ndarray, float]:
-    """Apply bounded Lanczos interpolation; this does not restore lost facial details."""
     height, width = crop.shape[:2]
     factor = min(max_factor, max(1.0, target / min(height, width)))
     resized = Image.fromarray(crop).resize(

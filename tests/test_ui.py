@@ -1,5 +1,3 @@
-"""UI construction and explicit unsupported-status checks."""
-
 import numpy as np
 import pytest
 from PIL import Image

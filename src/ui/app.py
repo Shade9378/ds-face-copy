@@ -1,5 +1,3 @@
-"""Gradio interface for face analysis."""
-
 import os
 from pathlib import Path
 
@@ -15,7 +13,6 @@ GAME_NAMES = ["Elden Ring", "Dark Souls 1", "Dark Souls 2", "Dark Souls 3", "Blo
 
 
 def analyze_photograph(image_path: str | None, game_name: str, upscale: bool) -> tuple:
-    """Analyze locally and return photograph crops and portable JSON metadata."""
     if image_path is None:
         raise gr.Error("Upload a photograph first.")
     config = AnalysisConfig()
@@ -38,7 +35,6 @@ def analyze_photograph(image_path: str | None, game_name: str, upscale: bool) ->
 
 
 def create_app() -> gr.Blocks:
-    """Create an upload-to-analysis interface."""
     with gr.Blocks(title="Face-to-Sliders") as app:
         gr.Markdown("# Face-to-Sliders\nUpload a face photo. Sliders are still in development.")
         photograph = gr.Image(type="filepath", label="Photograph")
@@ -57,5 +53,4 @@ def create_app() -> gr.Blocks:
 
 
 def main() -> None:
-    """Serve on loopback with sharing and analytics disabled."""
     create_app().launch(server_name="127.0.0.1", share=False)
