@@ -62,3 +62,24 @@ has not been tested here because its checkpoint and licensed FLAME assets are un
 The preview uses canonical geometry without skin texture. Feature distances are normalized
 by eye-center spacing; they are not game slider values. Forehead measurements, automatic
 occlusion scoring, 3DDFA-V2 fallback and game calibration are still pending.
+
+    
+## Check setup
+
+The app's **MICA setup** panel lists missing assets and can inspect Python dependencies
+and CUDA without reconstructing a photo. The command-line equivalent is:
+
+```bash
+uv run python scripts/check_mica_setup.py
+uv run python scripts/check_mica_setup.py --runtime
+```
+
+Use --mica-repo and --mica-python to check a setup without environment variables.
+The command exits with status 1 when setup is incomplete or runtime checks fail.
+Asset checks alone do not load models. Even a successful runtime check does not establish
+that real inference works; test a consented photograph after installing the assets.
+
+Reconstruction reports include input quality flags. Low resolution, possible blur,
+exposure problems, failed or large pose estimates, cropped faces and multiple faces trigger
+review_required. An input without those flags is still unassessed for reconstruction accuracy.
+Occlusion detection is not implemented and is reported separately as unassessed.

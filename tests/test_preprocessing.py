@@ -145,3 +145,22 @@ def test_config_rejects_invalid_thresholds():
 def test_generation_refuses_uncalibrated_settings():
     with pytest.raises(UnsupportedGenerationError, match="calibration"):
         EldenRingAdapter().generate_sliders({"jaw_width": 1.0})
+
+
+def test_quality_flags_follow_configured_thresholds():
+    from preprocessing.models import HeadPose
+    from preprocessing.pipeline import assess_image_quality
+
+    crop = np.full((200, 200, 3), 128, dtype=np.uint8)
+    bounds = FaceBounds(left=0, top=0, right=200, bottom=200)
+    pose = HeadPose(pitch_degrees=0, yaw_degrees=40, roll_degrees=0, reprojection_error_pixels=25)
+    quality = assess_image_quality(crop, bounds, pose, AnalysisConfig())
+    assert set(quality.flags) == {"possible_blur", "large_rotation", "pose_fit_error"}
+    relaxed = assess_image_quality(
+        crop,
+        bounds,
+        pose,
+        AnalysisConfig(blur_threshold=0, max_pose_degrees=50, max_pose_error_ratio=0.2),
+    )
+    assert relaxed.flags == []
+    assert any("Occlusion confidence unavailable" in message for message in relaxed.warnings)

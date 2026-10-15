@@ -27,21 +27,29 @@ def assess_image_quality(
     brightness = float(gray.mean())
     width, height = bounds.right - bounds.left, bounds.bottom - bounds.top
     warnings = []
+    flags = []
     if min(width, height) < config.min_face_pixels:
         warnings.append("Low-resolution face; resizing cannot restore missing detail.")
+        flags.append("low_resolution")
     if blur < config.blur_threshold:
         warnings.append("Possible blur or low texture.")
+        flags.append("possible_blur")
     if brightness < config.dark_threshold:
         warnings.append("Possible underexposure.")
+        flags.append("underexposure")
     if brightness > config.bright_threshold:
         warnings.append("Possible overexposure.")
+        flags.append("overexposure")
     if pose is None:
         warnings.append("Head pose estimation failed.")
+        flags.append("pose_unavailable")
     else:
         if max(abs(pose.yaw_degrees), abs(pose.pitch_degrees)) > config.max_pose_degrees:
             warnings.append("Large head rotation; hidden regions cannot be measured reliably.")
-        if pose.reprojection_error_pixels > 0.1 * min(width, height):
+            flags.append("large_rotation")
+        if pose.reprojection_error_pixels > config.max_pose_error_ratio * min(width, height):
             warnings.append("High pose-fit residual; pose estimate may be unreliable.")
+            flags.append("pose_fit_error")
     warnings.append("Occlusion confidence unavailable; inspect covered facial features manually.")
     return QualityReport(
         face_width_pixels=width,
@@ -49,6 +57,7 @@ def assess_image_quality(
         laplacian_variance=blur,
         mean_brightness=brightness,
         warnings=warnings,
+        flags=flags,
     )
 
 
@@ -66,8 +75,12 @@ def prepare_face(
     pose = estimate_head_pose(points, original.shape)
     tight_crop, _ = crop_face(original, bounds, 0)
     quality = assess_image_quality(tight_crop, bounds, pose, config)
+    if len(faces) > 1:
+        quality.warnings.append("Multiple faces detected; verify the selected face crop.")
+        quality.flags.append("multiple_faces")
     if len(faces) >= config.max_faces:
         quality.warnings.append("Detection limit reached; a larger face may have been omitted.")
+        quality.flags.append("detection_limit")
     if (
         bounds.left == 0
         or bounds.top == 0
@@ -75,6 +88,7 @@ def prepare_face(
         or bounds.bottom == original.shape[0]
     ):
         quality.warnings.append("Face touches the image boundary and may be truncated.")
+        quality.flags.append("truncated_face")
     preview, factor = (
         upscale_crop(crop, config.upscale_target, config.max_upscale_factor)
         if upscale

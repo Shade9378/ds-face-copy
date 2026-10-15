@@ -54,7 +54,7 @@ def mica_config_from_environment() -> MicaConfig:
     )
 
 
-def validate_mica_setup(config: MicaConfig) -> tuple[Path, Path, Path]:
+def resolve_mica_paths(config: MicaConfig) -> tuple[Path, Path, Path]:
     repository = config.repository_path.resolve()
     executable = config.python_executable.expanduser().absolute()
     checkpoint = (
@@ -62,6 +62,11 @@ def validate_mica_setup(config: MicaConfig) -> tuple[Path, Path, Path]:
         if config.checkpoint_path
         else repository / "data/pretrained/mica.tar"
     )
+    return repository, executable, checkpoint
+
+
+def validate_mica_setup(config: MicaConfig) -> tuple[Path, Path, Path]:
+    repository, executable, checkpoint = resolve_mica_paths(config)
     missing = [
         str(repository / name)
         for name in REQUIRED_REPOSITORY_FILES
@@ -146,6 +151,8 @@ class MicaModel:
             triangle_count=len(geometry.triangles),
             landmark_count=len(geometry.landmarks),
             features=features,
+            reliability=("review_required" if prepared_face.report.quality.flags else "unassessed"),
+            input_quality_flags=prepared_face.report.quality.flags,
             warnings=warnings,
             checkpoint_sha256=_checkpoint_digest(checkpoint),
             upstream_revision=_upstream_revision(repository),

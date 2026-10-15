@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
@@ -19,9 +20,12 @@ class MicaConfig(BaseModel):
 
 
 class ReconstructionReport(BaseModel):
-    schema_version: str = "1.0"
+    schema_version: str = "1.1"
     backend: str = "MICA"
     status: str = "experimental"
+    reliability: Literal["unassessed", "review_required"] = "unassessed"
+    input_quality_flags: list[str] = Field(default_factory=list)
+    occlusion_assessed: bool = False
     units: str = "millimeters"
     coordinate_system: str = "MICA canonical FLAME coordinates; preview looks along -z"
     vertex_count: int

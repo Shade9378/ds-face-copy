@@ -9,6 +9,7 @@ import gradio as gr
 from preprocessing.face_detection import MediaPipeFaceDetector
 from preprocessing.models import AnalysisConfig
 from preprocessing.pipeline import PreparedFace, prepare_face
+from reconstruction.diagnostics import inspect_mica_setup
 from reconstruction.export import create_reconstruction_archive, export_reconstruction
 from reconstruction.mica_model import MicaModel, mica_config_from_environment
 
@@ -60,6 +61,10 @@ def reconstruct_photograph(image_path: str | None, game_name: str) -> tuple:
     )
 
 
+def check_mica_configuration() -> dict:
+    return inspect_mica_setup(check_runtime=True).model_dump(mode="json")
+
+
 def create_app() -> gr.Blocks:
     with gr.Blocks(title="Face-to-Sliders") as app:
         gr.Markdown("# Face-to-Sliders\nUpload a face photo. Sliders are still in development.")
@@ -72,6 +77,10 @@ def create_app() -> gr.Blocks:
             preview = gr.Image(label="Resized crop")
         report = gr.JSON(label="Face analysis")
         status = gr.Textbox(label="Game support", interactive=False)
+        with gr.Accordion("MICA setup", open=False):
+            check_setup = gr.Button("Check MICA setup")
+            setup_report = gr.JSON(label="Setup checks")
+            check_setup.click(check_mica_configuration, outputs=setup_report)
         reconstruct = gr.Button("Reconstruct with MICA")
         mesh_preview = gr.Image(label="Frontal mesh preview")
         reconstruction_report = gr.JSON(label="Reconstruction")

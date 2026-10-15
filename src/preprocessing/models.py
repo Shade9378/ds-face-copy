@@ -11,6 +11,7 @@ class AnalysisConfig(BaseModel):
     dark_threshold: float = Field(default=50, ge=0, le=255)
     bright_threshold: float = Field(default=205, ge=0, le=255)
     max_pose_degrees: float = Field(default=35, gt=0, le=90)
+    max_pose_error_ratio: float = Field(default=0.1, gt=0, le=1)
     upscale_target: int = Field(default=512, gt=0, le=2048)
     max_upscale_factor: float = Field(default=4, ge=1, le=4)
 
@@ -35,10 +36,11 @@ class QualityReport(BaseModel):
     laplacian_variance: float
     mean_brightness: float
     warnings: list[str]
+    flags: list[str] = Field(default_factory=list)
 
 
 class AnalysisReport(BaseModel):
-    schema_version: str = "1.0"
+    schema_version: str = "1.1"
     image_width: int
     image_height: int
     detected_faces: int
