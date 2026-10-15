@@ -56,14 +56,15 @@ uv run python scripts/reconstruct_photo.py portrait.jpg \
   --output outputs/portrait
 ```
 
-This integration is experimental. Software tests use synthetic output to check the
-subprocess contract, geometry, rendering, error handling and export. Real MICA inference
-has not been tested here because its checkpoint and licensed FLAME assets are unavailable.
+This integration is experimental. Software tests cover the subprocess contract, geometry,
+rendering, error handling and export. Real MICA inference has also passed smoke tests on
+a frontal portrait and an upstream example with roughly 23 degrees of estimated yaw.
+These checks establish that reconstruction runs; they do not measure likeness accuracy.
 The preview uses canonical geometry without skin texture. Feature distances are normalized
 by eye-center spacing; they are not game slider values. Forehead measurements, automatic
 occlusion scoring, 3DDFA-V2 fallback and game calibration are still pending.
 
-    
+
 ## Check setup
 
 The app's **MICA setup** panel lists missing assets and can inspect Python dependencies
@@ -83,3 +84,39 @@ Reconstruction reports include input quality flags. Low resolution, possible blu
 exposure problems, failed or large pose estimates, cropped faces and multiple faces trigger
 review_required. An input without those flags is still unassessed for reconstruction accuracy.
 Occlusion detection is not implemented and is reported separately as unassessed.
+
+
+## Local installation
+
+This machine's installed environment is configured in the ignored models/local.env file.
+Start the app from the project folder:
+
+```bash
+source models/local.env
+uv run face-to-slider
+```
+
+The local MICA environment uses Python 3.9.25, PyTorch 1.13.1 with CUDA 11.7,
+and the RTX 4060. The RTX 5070 is not supported by that legacy PyTorch build.
+Dependency versions are recorded in models/mica_requirements.txt.
+
+The official checkpoint includes optimizer and training metadata that the legacy
+weights-only loader cannot read. The local mica_weights.tar contains just the original
+ArcFace and FLAME state dictionaries. Every tensor was checked against the trusted
+official download before using it. No model training was performed.
+
+The user-supplied FLAME2020 generic_model.pkl is installed in MICA's data/FLAME2020 folder.
+The original licensed download folder, model checkout, environments and generated outputs
+are excluded from Git.
+
+Run real-model tests explicitly:
+
+```bash
+source models/local.env
+RUN_MICA_INTEGRATION=1 \
+FACE_TEST_PORTRAIT=/absolute/path/to/frontal.jpg \
+FACE_TEST_NONFRONTAL=/absolute/path/to/angled.jpg uv run pytest
+```
+
+Use a non-frontal test image with at least 15 degrees of estimated yaw.
+The default suite skips real MICA inference unless enabled.
